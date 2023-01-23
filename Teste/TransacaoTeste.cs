@@ -8,13 +8,12 @@ namespace Teste
         {
             var transacao = new Transacao
             {
-                Id = new Random().Next(1000, 9999).ToString(),
                 Valor = 1000,
                 NumeroParcelas = 12,
                 MetodoPagamento = MetodoPagamento.CartaoCredito
             };
 
-            transacao.GeraParcelas();
+            transacao.GerarParcelas();
 
             //Count sem o parênteses, porque não é necessária a expressão LINQ
             Assert.AreEqual(12, transacao.Parcelas.Count);

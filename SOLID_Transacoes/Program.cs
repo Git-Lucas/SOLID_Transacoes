@@ -14,9 +14,9 @@ app.MapPost("/transacoes", async (EfSqliteAdapter context, [FromBody] Transacao 
     try
     {
         var transacaoData = new TransacaoDataSqlite(context);
-        var criaTransacaoUseCase = new CriaTransacao(transacaoData);
+        var transacaoUseCase = new TransacaoUseCase(transacaoData);
         var id = new Random().Next(1000, 9999).ToString();
-        var result = await criaTransacaoUseCase.ExecutaAsync(id, transacao.Valor, transacao.NumeroParcelas, transacao.MetodoPagamento);
+        var result = await transacaoUseCase.CriarAsync(id, transacao.Valor, transacao.NumeroParcelas, transacao.MetodoPagamento);
         return Results.Created($"/transacoes/{id}", result);
     }
     catch (Exception ex)
@@ -28,32 +28,36 @@ app.MapPost("/transacoes", async (EfSqliteAdapter context, [FromBody] Transacao 
 app.MapGet("/transacoes/{id}", async (EfSqliteAdapter context, string id) =>
 {
     var transacaoData = new TransacaoDataSqlite(context);
-    var visualizaTransacao = new VisualizaTransacao(transacaoData);
-    return Results.Ok(await visualizaTransacao.ExecutaAsync(id));
+    var transacaoUseCase = new TransacaoUseCase(transacaoData);
+    return Results.Ok(await transacaoUseCase.VisualizarPorIdAsync(id));
 });
 
 app.MapGet("/transacoes", async (EfSqliteAdapter context) =>
-    Results.Ok(await new TransacaoDataSqlite(context).GetAllAsync()));
+    {
+        var transacaoData = new TransacaoDataSqlite(context);
+        var transacaoUseCase = new TransacaoUseCase(transacaoData);
+        Results.Ok(await transacaoUseCase.VisualizarTodasAsync());
+    });
 
 app.MapDelete("transacoes/{id}", async (EfSqliteAdapter context, string id) =>
 {
-    var deletaTransacao = new DeletaTransacao(new TransacaoDataSqlite(context));
-    await deletaTransacao.ExecutaAsync(id);
+    var transacaoData = new TransacaoDataSqlite(context);
+    var transacaoUseCase = new TransacaoUseCase(transacaoData);
+    await transacaoUseCase.DeletarAsync(id);
 
     return Results.Ok();
 });
 
-//app.MapDelete("transacoes/deletarTodos", async (EfSqliteAdapter context) =>
-//{
-//    var transacaoData = new TransacaoDataSqlite(context);
-//    var visualizaTransacoes = new VisualizaTransacao(transacaoData);
-//    var deletaTransacao = new DeletaTransacao(transacaoData);
-//    var transacoes = await visualizaTransacoes.ExecutaAsync();
+app.MapDelete("transacoes/deletarTodos", async (EfSqliteAdapter context) =>
+{
+    var transacaoData = new TransacaoDataSqlite(context);
+    var transacaoUseCase = new TransacaoUseCase(transacaoData);
+    var transacoes = await transacaoUseCase.VisualizarTodasAsync();
 
-//    foreach (Transacao t in transacoes)
-//    {
-//        await deletaTransacao.ExecutaAsync(t.Id);
-//    }
-//});
+    foreach (Transacao t in transacoes)
+    {
+        await transacaoUseCase.DeletarAsync(t.Id);
+    }
+});
 
 app.Run();

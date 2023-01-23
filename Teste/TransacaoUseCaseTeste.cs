@@ -8,10 +8,10 @@
         {
             var id = new Random().Next(1000, 9999).ToString();
             var transacaoData = new TransacaoDataMemory();
-            var criaTransacaoUseCase = new CriaTransacao(transacaoData);
-            await criaTransacaoUseCase.ExecutaAsync(id, 1000, 12, MetodoPagamento.CartaoCredito);
+            var transacaoUseCase = new TransacaoUseCase(transacaoData);
+            await transacaoUseCase.CriarAsync(id, 1000, 12, MetodoPagamento.CartaoCredito);
 
-            var transacao = await new VisualizaTransacao(transacaoData).ExecutaAsync(id);
+            var transacao = await transacaoUseCase.VisualizarPorIdAsync(id);
 
             Assert.AreEqual(id, transacao.Id);
             Assert.AreEqual(1000, transacao.Valor);
@@ -27,12 +27,12 @@
         {
             var id = new Random().Next(1000, 9999).ToString();
             var transacaoData = new TransacaoDataSqlite(new EfSqliteAdapter());
-            var criaTransacaoUseCase = new CriaTransacao(transacaoData);
-            await criaTransacaoUseCase.ExecutaAsync(id, 1000, 12, MetodoPagamento.CartaoCredito);
+            var transacaoUseCase = new TransacaoUseCase(transacaoData);
+            await transacaoUseCase.CriarAsync(id, 1000, 12, MetodoPagamento.CartaoCredito);
 
-            var transacao = await new VisualizaTransacao(transacaoData).ExecutaAsync(id);
+            var transacao = await transacaoUseCase.VisualizarPorIdAsync(id);
 
-            await new DeletaTransacao(transacaoData).ExecutaAsync(id);
+            await transacaoUseCase.DeletarAsync(id);
 
             Assert.AreEqual(id, transacao.Id);
             Assert.AreEqual(1000, transacao.Valor);

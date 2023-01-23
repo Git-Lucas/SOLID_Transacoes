@@ -10,7 +10,7 @@ namespace SOLID_Transacoes.Domain.Models
         public MetodoPagamento MetodoPagamento { get; set; }
         public List<Parcela> Parcelas { get; set; } = new();
 
-        public void GeraParcelas()
+        public void GerarParcelas()
         {
             var valorParcela = Math.Round(Valor / NumeroParcelas, 2);
             var diferenca = Math.Round(Valor - valorParcela * NumeroParcelas, 2);
